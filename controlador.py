@@ -4,8 +4,10 @@ from include.EmpleadoVO import EmpleadoVO
 from include.EmpleadoDAO import EmpleadoDAO
 from include.LogIn_VO import LogInVO
 from include.LogIn_DAO import LogInDAO
+import uuid, hashlib
 
-app = Flask(__name__, static_url_path='', static_folder='static/')
+app = Flask(__name__, static_url_path='')
+app.static_folder = 'static'
 
 @app.route("/")
 def index():
@@ -32,7 +34,7 @@ def login2():
     try:
         DAO= LogInDAO()  
         data=request.form
-        VO = LogInVO( data['email'], data['password'])
+        VO = LogInVO(99,data['email'], data['password'],'' )
         listaVO = DAO.selectALL(VO)
         print(listaVO.__len__())
         return {
@@ -49,12 +51,19 @@ def registrarse():
 @app.route("/registrarse",methods=["POST"])
 def registrarse_2():
     try:
-        DAO= EmpleadoDAO()            
+        DAOE = EmpleadoDAO()
+        DAOL = LogInDAO()            
         data=request.form
         print(data)
-        VO = EmpleadoVO( data['nombrecompleto'], data['email'], data['password'], data['tel'], data['empresa'])
+        sal = uuid.uuid4().hex
+        VO2 = LogInVO(99, data['email'], data['password'], sal)
         #VO.setEmpleado( data['nombrecompleto'], data['email'], data['password'], data['tel'], data['empresa'])
-        DAO.insertALL(VO)
+        mensaje=DAOL.insert(VO2)
+        #print("Mensaje")
+        #print(mensaje['id'])
+        VO = EmpleadoVO(99, data['nombrecompleto'], data['email'], data['tel'], data['empresa'], mensaje['id']) 
+        #print("Va el Empleado con id "+ str(VO.getIdLogin()))
+        DAOE.insert(VO)
         return {
             "message": "registrarse_2 succeful"
         }    

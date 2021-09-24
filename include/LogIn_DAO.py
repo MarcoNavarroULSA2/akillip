@@ -24,3 +24,23 @@ class LogInDAO:
         finally: 
             cursor.close()
             conn.close()
+
+    def insert(self, vo):
+        try:
+            conn=cnx.mysql.connect()
+            cursor=conn.cursor()
+            consulta=("INSERT INTO Login_Empleado (Correo,Password, sal)" "VALUES(%s,%s,%s)")          
+            valores=(
+            vo.getCorreo(),           
+            vo.getPassword(),
+            vo.getSal()
+            )
+            cursor.execute(consulta, valores)
+            conn.commit()
+            print(cursor.lastrowid)
+            return {'message': "insert succesful", "id":cursor.lastrowid}
+        except Exception as e:
+            return json.dumps({'error':str(e)})  
+        finally: 
+            cursor.close()
+            conn.close()    
